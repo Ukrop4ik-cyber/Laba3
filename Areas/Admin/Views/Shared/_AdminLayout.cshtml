@@ -1,0 +1,197 @@
+﻿<!DOCTYPE html>
+<html lang="uk">
+<head>
+    <meta charset="utf-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>@ViewData["Title"] - TechShop Admin</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="~/css/admin-custom.css" asp-append-version="true" />
+</head>
+<body>
+<!-- Top Navigation -->
+<nav class="navbar navbar-expand-lg admin-topnav">
+    <div class="container-fluid">
+        <a class="navbar-brand" href="/Admin/Admin/Index">
+            <i class="fas fa-laptop-code"></i> TechShop Admin
+        </a>
+
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#adminNav">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+
+        <div class="collapse navbar-collapse" id="adminNav">
+            <ul class="navbar-nav me-auto">
+                <li class="nav-item">
+                    <a class="nav-link" href="/Admin/Admin/Index">
+                        <i class="fas fa-home"></i> Головна
+                    </a>
+                </li>
+
+                <!-- Каталог Dropdown -->
+                <li class="nav-item dropdown">
+                    <a class="nav-link dropdown-toggle" href="#" data-bs-toggle="dropdown">
+                        <i class="fas fa-box"></i> Каталог
+                    </a>
+                    <ul class="dropdown-menu">
+                        <li>
+                            <a class="dropdown-item" href="/Admin/Admin/Products">
+                                <i class="fas fa-list"></i> Товари
+                            </a>
+                        </li>
+                        <li>
+                            <a class="dropdown-item" href="/Admin/Admin/CreateProduct">
+                                <i class="fas fa-plus"></i> Додати товар
+                            </a>
+                        </li>
+                        <li><hr class="dropdown-divider"></li>
+                        <li>
+                            <a class="dropdown-item" href="/Admin/Categories/Index">
+                                <i class="fas fa-folder"></i> Категорії
+                            </a>
+                        </li>
+                    </ul>
+                </li>
+
+                <li class="nav-item">
+                    <a class="nav-link" href="/Admin/Admin/Orders">
+                        <i class="fas fa-shopping-cart"></i> Замовлення
+                    </a>
+                </li>
+
+                <li class="nav-item">
+                    <a class="nav-link" href="/Admin/Users/Index">
+                        <i class="fas fa-users"></i> Користувачі
+                    </a>
+                </li>
+
+                <li class="nav-item">
+                    <a class="nav-link" href="/Admin/Admin/Analytics">
+                        <i class="fas fa-chart-line"></i> Аналітика
+                    </a>
+                </li>
+            </ul>
+
+            <ul class="navbar-nav">
+                <li class="nav-item">
+                    <a class="nav-link" href="/" target="_blank">
+                        <i class="fas fa-external-link-alt"></i> Сайт
+                    </a>
+                </li>
+
+                <li class="nav-item dropdown">
+                    <a class="nav-link dropdown-toggle" href="#" data-bs-toggle="dropdown">
+                        <i class="fas fa-user-circle"></i> @User.Identity?.Name
+                    </a>
+                    <ul class="dropdown-menu dropdown-menu-end">
+                        <li>
+                            <a class="dropdown-item" href="/Account/Profile">
+                                <i class="fas fa-user"></i> Мій профіль
+                            </a>
+                        </li>
+                        <li><hr class="dropdown-divider"></li>
+                        <li>
+                            <form action="/Account/Logout" method="post" class="d-inline">
+                                @Html.AntiForgeryToken()
+                                <button type="submit" class="dropdown-item">
+                                    <i class="fas fa-sign-out-alt"></i> Вийти
+                                </button>
+                            </form>
+                        </li>
+                    </ul>
+                </li>
+            </ul>
+        </div>
+    </div>
+</nav>
+
+<!-- Main Content -->
+<main class="content-wrapper">
+    @if (TempData["Success"] != null)
+    {
+    <div class="alert alert-success alert-dismissible fade show" role="alert">
+        <i class="fas fa-check-circle me-2"></i>
+        @TempData["Success"]
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+    }
+
+    @if (TempData["Error"] != null)
+    {
+    <div class="alert alert-danger alert-dismissible fade show" role="alert">
+        <i class="fas fa-exclamation-circle me-2"></i>
+        @TempData["Error"]
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+    }
+
+    @Html.AntiForgeryToken()
+
+    @RenderBody()
+</main>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
+<script src="~/js/site.js" asp-append-version="true"></script>
+
+<script>
+    // Highlight active menu item
+    document.addEventListener('DOMContentLoaded', function () {
+        const currentPath = window.location.pathname;
+        document.querySelectorAll('.admin-topnav .nav-link, .admin-topnav .dropdown-item').forEach(link => {
+            const href = link.getAttribute('href');
+            if (href && currentPath.indexOf(href) !== -1 && href !== '/' && href !== '/Admin/Admin/Index') {
+                link.classList.add('active');
+                // Якщо це елемент dropdown, відкрити батьківський dropdown
+                const parentDropdown = link.closest('.dropdown');
+                if (parentDropdown) {
+                    parentDropdown.querySelector('.nav-link').classList.add('active');
+                }
+            }
+        });
+
+        // Auto-hide alerts
+        setTimeout(function () {
+            const alerts = document.querySelectorAll('.alert');
+            alerts.forEach(alert => {
+                const bsAlert = new bootstrap.Alert(alert);
+                bsAlert.close();
+            });
+        }, 5000);
+    });
+
+    // Global toast function
+    if (typeof showToast === 'undefined') {
+        window.showToast = function(message, type) {
+            type = type || 'success';
+            const bgClass = type === 'success' ? 'bg-success' :
+                type === 'danger' ? 'bg-danger' :
+                    type === 'warning' ? 'bg-warning' : 'bg-info';
+
+            const toastHtml = `
+                <div class="position-fixed bottom-0 end-0 p-3" style="z-index: 11">
+                    <div class="toast align-items-center text-white ${bgClass} border-0" role="alert">
+                        <div class="d-flex">
+                            <div class="toast-body">${message}</div>
+                            <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"></button>
+                        </div>
+                    </div>
+                </div>
+            `;
+
+            document.body.insertAdjacentHTML('beforeend', toastHtml);
+            const toastElement = document.body.lastElementChild.querySelector('.toast');
+            const toast = new bootstrap.Toast(toastElement, { delay: 3000 });
+            toast.show();
+
+            // Видалити після показу
+            toastElement.addEventListener('hidden.bs.toast', function() {
+                this.parentElement.remove();
+            });
+        }
+    }
+</script>
+
+@await RenderSectionAsync("Scripts", required: false)
+</body>
+</html>
